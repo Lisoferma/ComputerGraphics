@@ -25,7 +25,10 @@ internal class Window : GameWindow
     private int _fps = 0;
 
     private Canvas _canvas;
-    private Color[,] _image;
+    private Color[,] _image1;
+    private Color[,] _image2;
+
+    private bool IsDDA = true;
 
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -42,11 +45,14 @@ internal class Window : GameWindow
         EndX = -1;
         EndY = -1;
 
-        _image = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
-        CreateGridImage(_image);
+        _image1 = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
+        CreateGridImage(_image1);
+
+        _image2 = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
+        CreateGridImage(_image2);
 
         _canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT, ClientSize.X, ClientSize.Y);
-        _canvas.SetImage(_image);
+        _canvas.SetImage(_image1);
 
         base.OnLoad();
     }
@@ -70,7 +76,11 @@ internal class Window : GameWindow
 
         if (_frameTime >= 1.0f)
         {
-            Title = $"{TITLE} | {_fps} fps";
+            if (IsDDA)
+                Title = $"{TITLE} | DDA | {_fps} fps";
+            else
+                Title = $"{TITLE} | Bresenham | {_fps} fps";
+
             _frameTime = 0.0f;
             _fps = 0;
         }
@@ -78,13 +88,27 @@ internal class Window : GameWindow
         if (KeyboardState.IsKeyDown(Keys.Escape))
             Close();
 
-        if (KeyboardState.IsKeyDown(Keys.Space))
+        if (KeyboardState.IsKeyDown(Keys.Backspace))
         {
-            CreateGridImage(_image);
-            _canvas.SetImage(_image);
+            CreateGridImage(_image2);
+            CreateGridImage(_image1);
+            _canvas.SetImage(_image1);
         }
+
+        if (KeyboardState.IsKeyPressed(Keys.Space))
+        {
+            if (IsDDA)
+            {
+                _canvas.SetImage(_image2);
+                IsDDA = false;
+            }
+            else
+            {
+                _canvas.SetImage(_image1);
+                IsDDA = true;
+            }
             
-        //if (MouseState.IsButtonDown(MouseButton.Left))
+        }
 
         base.OnUpdateFrame(e);
     }
@@ -141,8 +165,13 @@ internal class Window : GameWindow
 
         if (SetLineCoord(canvasX, canvasY))
         {
-            Line.CreateLineDDA(StartX, StartY, EndX, EndY, _image, Color.Blue);
-            _canvas.SetImage(_image);
+            Line.DrawLineDDA(StartX, StartY, EndX, EndY, _image1, Color.Blue);
+            Line.DrawLineBresenham(StartX, StartY, EndX, EndY, _image2, Color.Orange);
+            
+            if (IsDDA)
+                _canvas.SetImage(_image1);
+            else
+                _canvas.SetImage(_image2);
 
             ClearLineCoor();
         }

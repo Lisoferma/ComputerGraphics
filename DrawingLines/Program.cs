@@ -9,7 +9,7 @@ internal class Program
     {
         NativeWindowSettings nativeWindowSettings = new()
         {
-            Title = "Explosion",
+            Title = "Loading",
             ClientSize = new Vector2i(512, 512),      
         };
 
