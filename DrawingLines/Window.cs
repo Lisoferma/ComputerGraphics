@@ -17,6 +17,7 @@ internal class Window : GameWindow
     private readonly Color COLOR_BG_2 = Color.FromArgb(40, 52, 62);
     private readonly Color COLOR_DDA = Color.FromArgb(0, 200, 220);
     private readonly Color COLOR_BRESENHAM = Color.FromArgb(230, 127, 0);
+    private readonly Color COLOR_CIRCLE = Color.FromArgb(5, 220, 0);
 
     private double _frameTime = 0.0f;
     private int _fps = 0;
@@ -29,6 +30,11 @@ internal class Window : GameWindow
     private int StartY = -1;
     private int EndX = -1;
     private int EndY = -1;
+
+    private int StartCircleX = -1;
+    private int StartCircleY = -1;
+    private int EndCircleX = -1;
+    private int EndCircleY = -1;
 
     private bool IsDDA = true;
 
@@ -109,6 +115,9 @@ internal class Window : GameWindow
         if (e.Button == MouseButton.Left)
             SetLineCoord();
 
+        if (e.Button == MouseButton.Right)
+            SetCircleCoord();
+
         base.OnMouseDown(e);
     }
 
@@ -119,8 +128,8 @@ internal class Window : GameWindow
 
         if (SetBlankLineCoord(canvasX, canvasY))
         {
-            Line.DrawLineDDA(StartX, StartY, EndX, EndY, _image1, COLOR_DDA);
-            Line.DrawLineBresenham(StartX, StartY, EndX, EndY, _image2, COLOR_BRESENHAM);
+            Drawing.DrawLineDDA(StartX, StartY, EndX, EndY, _image1, COLOR_DDA);
+            Drawing.DrawLineBresenham(StartX, StartY, EndX, EndY, _image2, COLOR_BRESENHAM);
 
             if (IsDDA)
                 _canvas.SetImage(_image1);
@@ -155,6 +164,53 @@ internal class Window : GameWindow
         StartY = -1;
         EndX = -1;
         EndY = -1;
+    }
+
+
+    private void SetCircleCoord()
+    {
+        (int canvasX, int canvasY) = _canvas.GetCoord(MouseState.X, MouseState.Y);
+
+        if (SetBlankCircleCoord(canvasX, canvasY))
+        {
+            int radius = Distance(StartCircleX, StartCircleY, EndCircleX, EndCircleY);
+
+            Drawing.DrawCircleBresenham(StartCircleX, StartCircleY, radius, _image1, COLOR_CIRCLE);
+            Drawing.DrawCircleBresenham(StartCircleX, StartCircleY, radius, _image2, COLOR_CIRCLE);
+
+            if (IsDDA)
+                _canvas.SetImage(_image1);
+            else
+                _canvas.SetImage(_image2);
+
+            ClearCircleCoord();
+        }
+    }
+
+
+    private bool SetBlankCircleCoord(int x, int y)
+    {
+        if (StartCircleX == -1)
+        {
+            StartCircleX = x;
+            StartCircleY = y;
+            return false;
+        }
+        else
+        {
+            EndCircleX = x;
+            EndCircleY = y;
+            return true;
+        }
+    }
+
+
+    private void ClearCircleCoord()
+    {
+        StartCircleX = -1;
+        StartCircleY = -1;
+        EndCircleX = -1;
+        EndCircleY = -1;
     }
 
 
@@ -220,5 +276,14 @@ internal class Window : GameWindow
 
             setColor = setColor == false;
         }
+    }
+
+
+    public static int Distance(int x0, int y0, int x1, int y1)
+    {
+        int dx = x0 - x1;
+        int dy = y0 - y1;
+
+        return (int)Math.Sqrt((double)dx * dx + dy * dy);
     }
 }
