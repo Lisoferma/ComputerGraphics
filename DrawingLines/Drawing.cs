@@ -5,7 +5,7 @@ namespace DrawingLines;
 public static class Drawing
 {
     /// <summary>
-    /// Нарисовать линию на заданном изобрежение по алгоритму DDA.
+    /// Нарисовать линию на заданном изобрежении по алгоритму DDA.
     /// </summary>
     /// <param name="x0">Начальная координата X.</param>
     /// <param name="y0">Начальная координата Y.</param>
@@ -44,7 +44,7 @@ public static class Drawing
 
 
     /// <summary>
-    /// Нарисовать линию на заданном изобрежение по алгоритму Брезенхема.
+    /// Нарисовать линию на заданном изобрежении по алгоритму Брезенхема.
     /// </summary>
     /// <param name="x0">Начальная координата X.</param>
     /// <param name="y0">Начальная координата Y.</param>
@@ -94,6 +94,14 @@ public static class Drawing
     }
 
 
+    /// <summary>
+    /// Нарисовать окружность на заданном изобрежении по алгоритму Брезенхема.
+    /// </summary>
+    /// <param name="x0">X-координата центра окружности.</param>
+    /// <param name="y0">Y-координата центра окружности.</param>
+    /// <param name="radius">Радиус окружности.</param>
+    /// <param name="image">Изображение на котором рисовать окружность.</param>
+    /// <param name="color">Цвет окружности.</param>
     public static void DrawCircleBresenham(int x0, int y0, int radius, Color[,] image, Color color)
     {
         int x = radius;
