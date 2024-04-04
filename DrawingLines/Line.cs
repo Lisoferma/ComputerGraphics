@@ -7,16 +7,16 @@ public static class Line
     /// <summary>
     /// Нарисовать линию на заданном изобрежение по алгоритму DDA.
     /// </summary>
-    /// <param name="startX">Начальная координата X.</param>
-    /// <param name="startY">Начальная координата Y.</param>
-    /// <param name="endX">Конечная координата X.</param>
-    /// <param name="endY">Конечная координата Y.</param>
+    /// <param name="x0">Начальная координата X.</param>
+    /// <param name="y0">Начальная координата Y.</param>
+    /// <param name="x1">Конечная координата X.</param>
+    /// <param name="y1">Конечная координата Y.</param>
     /// <param name="image">Изображение на котором рисовать линию.</param>
     /// <param name="color">Цвет линии.</param>
-    public static void DrawLineDDA(int startX, int startY, int endX, int endY, Color[,] image, Color color)
+    public static void DrawLineDDA(int x0, int y0, int x1, int y1, Color[,] image, Color color)
     {
-        int dx = endX - startX;
-        int dy = endY - startY;
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
         // Количество шагов алгоритма для построения линии
         int steps;
@@ -31,8 +31,8 @@ public static class Line
         float addY = (float)dy / steps;
 
         // Текущие координаты шага. Начинаем с startX, startY
-        float x = startX;
-        float y = startY;
+        float x = x0;
+        float y = y0;
 
         for (int i = 0; i <= steps; ++i)
         {
@@ -43,88 +43,59 @@ public static class Line
     }
 
 
-    public static void DrawLineBresenham(int x1, int y1, int x2, int y2, Color[,] image, Color color)
+    /// <summary>
+    /// Нарисовать линию на заданном изобрежение по алгоритму Брезенхема.
+    /// </summary>
+    /// <param name="x0">Начальная координата X.</param>
+    /// <param name="y0">Начальная координата Y.</param>
+    /// <param name="x1">Конечная координата X.</param>
+    /// <param name="y1">Конечная координата Y.</param>
+    /// <param name="image">Изображение на котором рисовать линию.</param>
+    /// <param name="color">Цвет линии.</param>
+    public static void DrawLineBresenham(int x0, int y0, int x1, int y1, Color[,] image, Color color)
     {
-        int x, y;
-        int step = 1;
-        int d, d1, d2;
+        // Проверяем рост отрезка по оси X и по оси Y
+        bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
 
-        int dxabs = Math.Abs(x2 - x1);
-        int dyabs = Math.Abs(y2 - y1);
-
-        if ((dxabs > dyabs && x2 < x1) || (dxabs <= dyabs && y2 < y1))
+        // Отражаем линию по диагонали, если угол наклона слишком большой
+        if (steep)
         {
-            x = x1;
-            x1 = x2;
-            x2 = x;
-
-            y = y1;
-            y1 = y2;
-            y2 = y;
+            Swap(ref x0, ref y0);
+            Swap(ref x1, ref y1);
         }
 
-        image[y1, x1] = color;
-
-        int dx = x2 - x1;
-        int dy = y2 - y1;
-        dxabs = Math.Abs(dx);
-        dyabs = Math.Abs(dy);
-
-        if (dxabs > dyabs)
+        // Если линия растёт не слева направо, то меняем местами начало и конец отрезка
+        if (x0 > x1)
         {
-            if (dy < 0)
+            Swap(ref x0, ref x1);
+            Swap(ref y0, ref y1);
+        }
+
+        int dx = x1 - x0;
+        int dy = Math.Abs(y1 - y0);
+        int error = dx / 2;
+
+        // Выбираем направление роста координаты y
+        int ystep = (y0 < y1) ? 1 : -1; 
+        int y = y0;
+
+        for (int x = x0; x <= x1; ++x)
+        {
+            // Не забываем вернуть координаты на место
+            image[steep ? x : y, steep ? y : x] = color;  
+
+            error -= dy;
+            if (error < 0)
             {
-                step = -1;
-                dy = -dy;
-            }
-
-            d = (dy * 2) - dx;
-            d1 = dy * 2;
-            d2 = (dy - dx) * 2;
-            y = y1;
-
-            for (x = x1 + 1; x < x2; ++x)
-            {
-                if (d > 0)
-                {
-                    y += step;
-                    d += d2;
-                }
-                else
-                {
-                    d += d1;
-                }
-
-                image[y1, x1] = color;
+                y += ystep;
+                error += dx;
             }
         }
-        else
-        {
-            if (dx < 0)
-            {
-                step = -1;
-                dx = -dx;
-            }
+    }
 
-            d = (dx * 2) - dy;
-            d1 = dx * 2;
-            d2 = (dx - dy) * 2;
-            x = x1;
 
-            for (y = y1 + 1; y < y2; ++y)
-            {
-                if (d > 0)
-                {
-                    x += step;
-                    d += d2;
-                }
-                else
-                {
-                    d += d1;
-                }
-
-                image[y1, x1] = color;
-            }
-        }
+    public static void Swap<T>(ref T a, ref T b)
+    {
+        (b, a) = (a, b);
     }
 }
