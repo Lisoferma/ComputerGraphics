@@ -10,8 +10,8 @@ namespace DrawingLines;
 internal class Window : GameWindow
 {
     private const string TITLE = "Drawing";
-    private const int CANVAS_WIDTH = 64;
-    private const int CANVAS_HEIGHT = 64;
+    private const int CANVAS_WIDTH = 100;
+    private const int CANVAS_HEIGHT = 100;
 
     private readonly Color COLOR_BG_1 = Color.FromArgb(31, 37, 47);
     private readonly Color COLOR_BG_2 = Color.FromArgb(40, 52, 62);
