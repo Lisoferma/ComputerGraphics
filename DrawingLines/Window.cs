@@ -9,7 +9,7 @@ namespace DrawingLines;
 
 internal class Window : GameWindow
 {
-    private const string TITLE = "Drawing Lines";
+    private const string TITLE = "Drawing";
     private const int CANVAS_WIDTH = 64;
     private const int CANVAS_HEIGHT = 64;
 
