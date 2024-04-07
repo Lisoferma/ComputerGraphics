@@ -119,9 +119,6 @@ public static class Drawing
             if (IsNotOutOfBounds(-x + x0, y + y0, image))
                 image[ y + y0, -x + x0] = color;
 
-            if (IsNotOutOfBounds(-x + x0, y + y0, image))
-                image[ y + y0, -x + x0] = color;
-
             if (IsNotOutOfBounds(-y + x0, x + y0, image))
                 image[ x + y0, -y + x0] = color;
 
