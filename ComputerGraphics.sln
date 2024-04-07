@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drawing", "DrawingLines\Drawing.csproj", "{52B51238-C011-47FE-BB00-933AE7AE9E8E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EllipseRotation", "EllipseRotation\EllipseRotation.csproj", "{326B5BAF-EB27-4CB8-8F68-2B29B75CE067}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{52B51238-C011-47FE-BB00-933AE7AE9E8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52B51238-C011-47FE-BB00-933AE7AE9E8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52B51238-C011-47FE-BB00-933AE7AE9E8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{326B5BAF-EB27-4CB8-8F68-2B29B75CE067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{326B5BAF-EB27-4CB8-8F68-2B29B75CE067}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{326B5BAF-EB27-4CB8-8F68-2B29B75CE067}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{326B5BAF-EB27-4CB8-8F68-2B29B75CE067}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
