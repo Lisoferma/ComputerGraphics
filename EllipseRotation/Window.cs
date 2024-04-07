@@ -4,39 +4,31 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
 using FoxCanvas;
+using System;
 
 namespace EllipseRotation;
 
 internal class Window : GameWindow
 {
     private const string TITLE = "Ellipse Rotation";
-    private const int CANVAS_WIDTH = 100;
-    private const int CANVAS_HEIGHT = 100;
+    private const int CANVAS_WIDTH = 200;
+    private const int CANVAS_HEIGHT = 200;
 
     private readonly Color COLOR_BG_1 = Color.FromArgb(31, 37, 47);
     private readonly Color COLOR_BG_2 = Color.FromArgb(40, 52, 62);
-    private readonly Color COLOR_DDA = Color.FromArgb(0, 200, 220);
-    private readonly Color COLOR_BRESENHAM = Color.FromArgb(230, 127, 0);
-    private readonly Color COLOR_CIRCLE = Color.FromArgb(5, 220, 0);
+    private readonly Color COLOR_ELLIPSE = Color.FromArgb(0, 200, 220);
 
     private double _frameTime = 0.0f;
     private int _fps = 0;
 
     private Canvas _canvas;
-    private Color[,] _image1;
-    private Color[,] _image2;
+    private Color[,] _image;
 
-    private int StartX = -1;
-    private int StartY = -1;
-    private int EndX = -1;
-    private int EndY = -1;
-
-    private int StartCircleX = -1;
-    private int StartCircleY = -1;
-    private int EndCircleX = -1;
-    private int EndCircleY = -1;
-
-    private bool IsDDA = true;
+    private int _startX = -1;
+    private int _startY = -1;
+    private int _endX = -1;
+    private int _endY = -1;
+    private int _angle = 0;
 
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -48,14 +40,11 @@ internal class Window : GameWindow
     {
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-        _image1 = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
-        CreateGridImage(_image1, COLOR_BG_1, COLOR_BG_2);
-
-        _image2 = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
-        CreateGridImage(_image2, COLOR_BG_1, COLOR_BG_2);
+        _image = new Color[CANVAS_WIDTH, CANVAS_HEIGHT];
+        CreateGridImage(_image, COLOR_BG_1, COLOR_BG_2);
 
         _canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT, ClientSize.X, ClientSize.Y);
-        _canvas.SetImage(_image1);
+        _canvas.SetImage(_image);
 
         base.OnLoad();
     }
@@ -74,6 +63,7 @@ internal class Window : GameWindow
 
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
+        DrawEllipse();
         UpdateTitle(e.Time);
         base.OnUpdateFrame(e);
     }
@@ -103,9 +93,6 @@ internal class Window : GameWindow
         if (KeyboardState.IsKeyPressed(Keys.Backspace))
             ClearCanvas();
 
-        if (KeyboardState.IsKeyPressed(Keys.Space))
-            SwitchDisplayedAlgorithm();
-
         base.OnKeyDown(e);
     }
 
@@ -113,127 +100,71 @@ internal class Window : GameWindow
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         if (e.Button == MouseButton.Left)
-            SetLineCoord();
-
-        if (e.Button == MouseButton.Right)
-            SetCircleCoord();
+            SetEllipseCoord();
 
         base.OnMouseDown(e);
     }
 
 
-    private void SetLineCoord()
+    private void DrawEllipse()
     {
-        (int canvasX, int canvasY) = _canvas.GetCoord(MouseState.X, MouseState.Y);
+        if (_endX == -1) return;
 
-        if (SetBlankLineCoord(canvasX, canvasY))
-        {
-            Drawing.DrawLineDDA(StartX, StartY, EndX, EndY, _image1, COLOR_DDA);
-            Drawing.DrawLineBresenham(StartX, StartY, EndX, EndY, _image2, COLOR_BRESENHAM);
+        CreateGridImage(_image, COLOR_BG_1, COLOR_BG_2);
 
-            if (IsDDA)
-                _canvas.SetImage(_image1);
-            else
-                _canvas.SetImage(_image2);
+        ++_angle;
 
-            ClearLineCoord();
-        }
+        if (_angle >= 360)
+            _angle = 0;
+
+        Ellipse.Draw(_startX, _startY, _endX, _endY, _angle, _image, COLOR_ELLIPSE);
+        _canvas.SetImage(_image);
     }
 
 
-    private bool SetBlankLineCoord(int x, int y)
+    private void SetEllipseCoord()
     {
-        if (StartX == -1)
+        (int canvasX, int canvasY) = _canvas.GetCoord(MouseState.X, MouseState.Y);
+
+        SetNextEllipseCoord(canvasX, canvasY);
+    }
+
+
+    private void SetNextEllipseCoord(int x, int y)
+    {
+        if (_startX == -1)
         {
-            StartX = x;
-            StartY = y;
-            return false;
+            _startX = x;
+            _startY = y;
+            return;
         }
-        else
+        else if (_endX == -1)
         {
-            EndX = x;
-            EndY = y;
-            return true;
+            _endX = x;
+            _endY = y;
+            return;
         }
+
+        _endX = -1;
+        _endY = -1;
+        _startX = x;
+        _startY = y;
     }
 
 
     private void ClearLineCoord()
     {
-        StartX = -1;
-        StartY = -1;
-        EndX = -1;
-        EndY = -1;
-    }
-
-
-    private void SetCircleCoord()
-    {
-        (int canvasX, int canvasY) = _canvas.GetCoord(MouseState.X, MouseState.Y);
-
-        if (SetBlankCircleCoord(canvasX, canvasY))
-        {
-            int radius = Distance(StartCircleX, StartCircleY, EndCircleX, EndCircleY);
-
-            Drawing.DrawCircleBresenham(StartCircleX, StartCircleY, radius, _image1, COLOR_CIRCLE);
-            Drawing.DrawCircleBresenham(StartCircleX, StartCircleY, radius, _image2, COLOR_CIRCLE);
-
-            if (IsDDA)
-                _canvas.SetImage(_image1);
-            else
-                _canvas.SetImage(_image2);
-
-            ClearCircleCoord();
-        }
-    }
-
-
-    private bool SetBlankCircleCoord(int x, int y)
-    {
-        if (StartCircleX == -1)
-        {
-            StartCircleX = x;
-            StartCircleY = y;
-            return false;
-        }
-        else
-        {
-            EndCircleX = x;
-            EndCircleY = y;
-            return true;
-        }
-    }
-
-
-    private void ClearCircleCoord()
-    {
-        StartCircleX = -1;
-        StartCircleY = -1;
-        EndCircleX = -1;
-        EndCircleY = -1;
-    }
-
-
-    private void SwitchDisplayedAlgorithm()
-    {
-        if (IsDDA)
-        {
-            _canvas.SetImage(_image2);
-            IsDDA = false;
-        }
-        else
-        {
-            _canvas.SetImage(_image1);
-            IsDDA = true;
-        }
+        _startX = -1;
+        _startY = -1;
+        _endX = -1;
+        _endY = -1;
     }
 
 
     private void ClearCanvas()
     {
-        CreateGridImage(_image1, COLOR_BG_1, COLOR_BG_2);
-        CreateGridImage(_image2, COLOR_BG_1, COLOR_BG_2);
-        _canvas.SetImage(_image1);
+        CreateGridImage(_image, COLOR_BG_1, COLOR_BG_2);
+        _canvas.SetImage(_image);
     }
 
 
@@ -244,10 +175,7 @@ internal class Window : GameWindow
 
         if (_frameTime >= 1.0f)
         {
-            if (IsDDA)
-                Title = $"{TITLE} | DDA | {_fps} fps";
-            else
-                Title = $"{TITLE} | Bresenham | {_fps} fps";
+            Title = $"{TITLE} | {_fps} fps";
 
             _frameTime = 0.0f;
             _fps = 0;
@@ -276,14 +204,5 @@ internal class Window : GameWindow
 
             setColor = setColor == false;
         }
-    }
-
-
-    public static int Distance(int x0, int y0, int x1, int y1)
-    {
-        int dx = x0 - x1;
-        int dy = y0 - y1;
-
-        return (int)Math.Sqrt((double)dx * dx + dy * dy);
     }
 }
