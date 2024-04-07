@@ -10,7 +10,7 @@ internal class Program
         NativeWindowSettings nativeWindowSettings = new()
         {
             Title = "Loading",
-            ClientSize = new Vector2i(800, 800),      
+            ClientSize = new Vector2i(600, 600),      
         };
 
         GameWindowSettings gameWindowSettings = new()
